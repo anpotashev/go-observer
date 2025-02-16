@@ -1,15 +1,19 @@
 package observer
 
 import (
-	"log/slog"
+	"github.com/rs/zerolog/log"
 	"sync"
 	"time"
 )
 
-type Observer[T any] interface {
-	Subscribe(time.Duration) <-chan T
-	Notify(T)
+type Subscriber[T any] interface {
+	Subscribe(time.Duration) chan T
 	Unsubscribe(chan T)
+}
+
+type Observer[T any] interface {
+	Subscriber[T]
+	Notify(T)
 }
 
 type Impl[T any] struct {
@@ -48,7 +52,7 @@ func (impl *Impl[T]) Notify(event T) {
 			select {
 			case ch <- event:
 			case <-time.After(duration):
-				slog.Warn("timeout writing to channel")
+				log.Warn().Msg("timeout writing to channel")
 			}
 		}(ch, duration)
 	}
