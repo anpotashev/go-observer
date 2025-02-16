@@ -7,7 +7,7 @@ import (
 )
 
 type Observer[T any] interface {
-	Subscribe(time.Duration) <-chan T
+	Subscribe(time.Duration) chan T
 	Notify(T)
 	Unsubscribe(chan T)
 }
